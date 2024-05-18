@@ -3,8 +3,8 @@ package Dictionary;
 import java.util.HashMap;
 import java.util.Map;
 
-public class Adjectives {
-    public static Map<String, String> adjectives() {
+public class Adjectives extends PartOfWord {
+    public Map<String, String> dictionary() {
         Map<String, String> adjectivesDictionary = new HashMap<>();
         adjectivesDictionary.put("alto", "tall");
         adjectivesDictionary.put("anche", "also");
@@ -12,7 +12,7 @@ public class Adjectives {
         adjectivesDictionary.put("bianco", "white");
         adjectivesDictionary.put("c'e", "There is");
         adjectivesDictionary.put("caldo", "hot");
-        adjectivesDictionary.put("ci_sono", "There are");
+        adjectivesDictionary.put("ci sono", "There are");
         adjectivesDictionary.put("con", "with");
         adjectivesDictionary.put("costa", "it costs");
         adjectivesDictionary.put("costano", "they cost");
@@ -49,6 +49,26 @@ public class Adjectives {
         adjectivesDictionary.put("altro", "other");
         adjectivesDictionary.put("subito", "immediately");
         adjectivesDictionary.put("importante", "important");
+        adjectivesDictionary.put("caro", "expensive");
+        adjectivesDictionary.put("economico", "cheap");
+        adjectivesDictionary.put("poco", "little");
+        adjectivesDictionary.put("tutto", "all");
+        adjectivesDictionary.put("cosa (pronouns)", "what");
+        adjectivesDictionary.put("senza", "without");
+        adjectivesDictionary.put("che", "that");
+        adjectivesDictionary.put("meglio", "better");
+        adjectivesDictionary.put("cosi (adj)", "so");
+        adjectivesDictionary.put("costoso", "expensive");
+        adjectivesDictionary.put("buono", "good");
+        adjectivesDictionary.put("cattivo", "bad");
+        adjectivesDictionary.put("difficile", "difficult");
+        adjectivesDictionary.put("felice", "happy");
+        adjectivesDictionary.put("lontano", "far");
+        adjectivesDictionary.put("vicino al", "near to");
+        adjectivesDictionary.put("efficace", "effective");
+        adjectivesDictionary.put("vecchio", "old");
+        adjectivesDictionary.put("di notte", "at night");
+        adjectivesDictionary.put("stanco", "tired");
         return adjectivesDictionary;
     }
 }

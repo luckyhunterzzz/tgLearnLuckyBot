@@ -3,14 +3,19 @@ package Dictionary;
 import java.util.HashMap;
 import java.util.Map;
 
-public class AllWords {
-    public static Map<String, String> allWords() {
+public class AllWords extends PartOfWord {
+    public Map<String, String> dictionary() {
+        PartOfWord verbs = new Verbs();
+        PartOfWord nouns = new Nouns();
+        PartOfWord adjectives = new Adjectives();
+        PartOfWord pronouns = new Pronouns();
+        PartOfWord phrases = new Phrases();
         Map<String, String> allWordsDictionary = new HashMap<>();
-        allWordsDictionary.putAll(Verbs.verbs());
-        allWordsDictionary.putAll(Nouns.nouns());
-        allWordsDictionary.putAll(Adjectives.adjectives());
-        allWordsDictionary.putAll(Pronouns.pronouns());
-        allWordsDictionary.putAll(Phrases.phrases());
+        allWordsDictionary.putAll(verbs.dictionary());
+        allWordsDictionary.putAll(nouns.dictionary());
+        allWordsDictionary.putAll(adjectives.dictionary());
+        allWordsDictionary.putAll(pronouns.dictionary());
+        allWordsDictionary.putAll(phrases.dictionary());
         return allWordsDictionary;
     }
 }

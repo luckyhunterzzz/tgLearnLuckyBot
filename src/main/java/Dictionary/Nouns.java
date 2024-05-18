@@ -3,8 +3,8 @@ package Dictionary;
 import java.util.HashMap;
 import java.util.Map;
 
-public class Nouns {
-    public static Map<String, String> nouns() {
+public class Nouns extends PartOfWord {
+    public Map<String, String> dictionary() {
         Map<String, String> nounsDictionary = new HashMap<>();
         nounsDictionary.put("acqua", "water");
         nounsDictionary.put("amico", "friend");
@@ -95,6 +95,23 @@ public class Nouns {
         nounsDictionary.put("aiuto", "help");
         nounsDictionary.put("giorno", "day");
         nounsDictionary.put("uomo", "man");
+        nounsDictionary.put("scarpe", "shoes");
+        nounsDictionary.put("guanti", "gloves");
+        nounsDictionary.put("lavatrice", "washing machine");
+        nounsDictionary.put("piatti", "dishes");
+        nounsDictionary.put("pomeriggio", "afternoon");
+        nounsDictionary.put("maglietta", "t-shirt");
+        nounsDictionary.put("affito", "rent");
+        nounsDictionary.put("citta", "city");
+        nounsDictionary.put("paese", "country");
+        nounsDictionary.put("vestito", "dress");
+        nounsDictionary.put("vestiti", "clothes");
+        nounsDictionary.put("cosa (nouns)", "thing");
+        nounsDictionary.put("errore", "mistake");
+        nounsDictionary.put("lingua", "language");
+        nounsDictionary.put("libro", "book");
+        nounsDictionary.put("gioco", "game");
+        nounsDictionary.put("mattina", "morning");
         return nounsDictionary;
     }
 }

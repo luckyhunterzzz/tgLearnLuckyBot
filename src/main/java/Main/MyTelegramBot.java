@@ -10,14 +10,13 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKe
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
 import Dictionary.*;
-
 import java.io.BufferedReader;
-import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.*;
 
 public class MyTelegramBot extends TelegramLongPollingBot {
+    private PartOfWord partOfWord;
     private int correctAnswers;
     private Long chatId;
     private int wordsToRepeat;
@@ -62,60 +61,13 @@ public class MyTelegramBot extends TelegramLongPollingBot {
                         /wordsleft - Осталось слов
                         /help - Помощь""");
             } else if (isWork) {
-                if (categoryOfWords.equals("verbs")) {
-                    if (Verbs.verbs().get(correctWord).equalsIgnoreCase(messageText)) {
-                        sendTextMessage(chatId, "Верно!");
-                        correctAnswers++;
-                        askNextWord(categoryOfWords);
-                    } else {
-                        sendTextMessage(chatId, "Неверно!");
-                        askNextWord(categoryOfWords);
-                    }
-                } else if (categoryOfWords.equals("nouns")) {
-                    if (Nouns.nouns().get(correctWord).equalsIgnoreCase(messageText)) {
-                        sendTextMessage(chatId, "Верно!");
-                        correctAnswers++;
-                        askNextWord(categoryOfWords);
-                    } else {
-                        sendTextMessage(chatId, "Неверно!");
-                        askNextWord(categoryOfWords);
-                    }
-                } else if (categoryOfWords.equals("adjectives")) {
-                    if (Adjectives.adjectives().get(correctWord).equalsIgnoreCase(messageText)) {
-                        sendTextMessage(chatId, "Верно!");
-                        correctAnswers++;
-                        askNextWord(categoryOfWords);
-                    } else {
-                        sendTextMessage(chatId, "Неверно!");
-                        askNextWord(categoryOfWords);
-                    }
-                } else if (categoryOfWords.equals("pronouns")) {
-                    if (Pronouns.pronouns().get(correctWord).equalsIgnoreCase(messageText)) {
-                        sendTextMessage(chatId, "Верно!");
-                        correctAnswers++;
-                        askNextWord(categoryOfWords);
-                    } else {
-                        sendTextMessage(chatId, "Неверно!");
-                        askNextWord(categoryOfWords);
-                    }
-                } else if (categoryOfWords.equals("phrases")) {
-                    if (Phrases.phrases().get(correctWord).equalsIgnoreCase(messageText)) {
-                        sendTextMessage(chatId, "Верно!");
-                        correctAnswers++;
-                        askNextWord(categoryOfWords);
-                    } else {
-                        sendTextMessage(chatId, "Неверно!");
-                        askNextWord(categoryOfWords);
-                    }
-                } else if (categoryOfWords.equals("allWords")) {
-                    if (AllWords.allWords().get(correctWord).equalsIgnoreCase(messageText)) {
-                        sendTextMessage(chatId, "Верно!");
-                        correctAnswers++;
-                        askNextWord(categoryOfWords);
-                    } else {
-                        sendTextMessage(chatId, "Неверно!");
-                        askNextWord(categoryOfWords);
-                    }
+                if (partOfWord.dictionary().get(correctWord).equalsIgnoreCase(messageText)) {
+                    sendTextMessage(chatId, "Верно!");
+                    correctAnswers++;
+                    askNextWord();
+                } else {
+                    sendTextMessage(chatId, "Неверно! \nПравильный ответ: " + partOfWord.dictionary().get(correctWord));
+                    askNextWord();
                 }
             }
         }  else if (update.hasCallbackQuery()) {
@@ -133,31 +85,37 @@ public class MyTelegramBot extends TelegramLongPollingBot {
         switch (data) {
             case "verbs":
                 sendTextMessage(chatId, "Ты выбрал глаголы!");
+                partOfWord = new Verbs();
                 askForQuantityOfQuestions(data);
                 categoryOfWords = data;
                 break;
             case "nouns":
                 sendTextMessage(chatId, "Ты выбрал существительные!");
+                partOfWord = new Nouns();
                 askForQuantityOfQuestions(data);
                 categoryOfWords = data;
                 break;
             case "adjectives":
                 sendTextMessage(chatId, "Ты выбрал прилагательные и наречия!");
+                partOfWord = new Adjectives();
                 askForQuantityOfQuestions(data);
                 categoryOfWords = data;
                 break;
             case "pronouns":
                 sendTextMessage(chatId, "Ты выбрал местоимения!");
+                partOfWord = new Pronouns();
                 askForQuantityOfQuestions(data);
                 categoryOfWords = data;
                 break;
             case "phrases":
                 sendTextMessage(chatId, "Ты выбрал фразы!");
+                partOfWord = new Phrases();
                 askForQuantityOfQuestions(data);
                 categoryOfWords = data;
                 break;
             case "allWords":
                 sendTextMessage(chatId, "Ты выбрал все слова!");
+                partOfWord = new AllWords();
                 askForQuantityOfQuestions(data);
                 categoryOfWords = data;
                 break;
@@ -166,80 +124,20 @@ public class MyTelegramBot extends TelegramLongPollingBot {
         }
     }
     private void handlerUserChoiceOfQuantityOfQuestions(String data) {
-        switch (categoryOfWords) {
-            case "verbs":
-                sendTextMessage(chatId, "Отлично! приступим!");
-                wordsToRepeat = Integer.parseInt(data);
-                quantityUserToRepeat = Integer.parseInt(data);
-                askNextWord("verbs");
-                break;
-            case "nouns":
-                sendTextMessage(chatId, "Отлично! приступим!");
-                wordsToRepeat = Integer.parseInt(data);
-                quantityUserToRepeat = Integer.parseInt(data);
-                askNextWord("nouns");
-                break;
-            case "adjectives":
-                sendTextMessage(chatId, "Отлично! приступим!");
-                wordsToRepeat = Integer.parseInt(data);
-                quantityUserToRepeat = Integer.parseInt(data);
-                askNextWord("adjectives");
-                break;
-            case "pronouns":
-                sendTextMessage(chatId, "Отлично! приступим!");
-                wordsToRepeat = Integer.parseInt(data);
-                quantityUserToRepeat = Integer.parseInt(data);
-                askNextWord("pronouns");
-                break;
-            case "phrases":
-                sendTextMessage(chatId, "Отлично! приступим!");
-                wordsToRepeat = Integer.parseInt(data);
-                quantityUserToRepeat = Integer.parseInt(data);
-                askNextWord("phrases");
-                break;
-            case "allWords":
-                sendTextMessage(chatId, "Отлично! приступим!");
-                wordsToRepeat = Integer.parseInt(data);
-                quantityUserToRepeat = Integer.parseInt(data);
-                askNextWord("allWords");
-                break;
-            default:
-                break;
-        }
+        sendTextMessage(chatId, "Отлично! приступим!");
+        wordsToRepeat = Integer.parseInt(data);
+        quantityUserToRepeat = Integer.parseInt(data);
+        askNextWord();
         userAllQuantityQuestionsStats += quantityUserToRepeat;
     }
-    private void askNextWord(String category) {
+    private void askNextWord() {
         if (wordsToRepeat == 0) {
             showQuizResult();
             isWork = false;
             return;
         }
 
-        String word;
-        switch (category) {
-            case "verbs":
-                word = getRandomWord(Verbs.verbs());
-                break;
-            case "nouns":
-                word = getRandomWord(Nouns.nouns());
-                break;
-            case "adjectives":
-                word = getRandomWord(Adjectives.adjectives());
-                break;
-            case "pronouns":
-                word = getRandomWord(Pronouns.pronouns());
-                break;
-            case "phrases":
-                word = getRandomWord(Phrases.phrases());
-                break;
-            case "allWords":
-                word = getRandomWord(AllWords.allWords());
-                break;
-            default:
-                word = "";
-                break;
-        }
-
+        String word = getRandomWord(partOfWord.dictionary());
         if (!word.isEmpty()) {
             sendTextMessage(chatId, "Как переводится слово \"" + word + "\"?");
             correctWord = word;
@@ -252,48 +150,6 @@ public class MyTelegramBot extends TelegramLongPollingBot {
     private String getRandomWord(Map<String, String> dictionary) {
         String[] keys = dictionary.keySet().toArray(new String[0]);
         return keys[new Random().nextInt(keys.length)];
-    }
-
-    private boolean isRightUserAnswer(String userAnswer) {
-        if (categoryOfWords.equals("verbs")) {
-            if ((Verbs.verbs().get(userAnswer)).equalsIgnoreCase(userAnswer)) {
-                return true;
-            } else {
-                return false;
-            }
-        } else if (categoryOfWords.equals("nouns")) {
-            if ((Nouns.nouns().get(userAnswer)).equalsIgnoreCase(userAnswer)) {
-                return true;
-            } else {
-                return false;
-            }
-        } else if (categoryOfWords.equals("adjectives")) {
-            if ((Adjectives.adjectives().get(userAnswer)).equalsIgnoreCase(userAnswer)) {
-                return true;
-            } else {
-                return false;
-            }
-        } else if (categoryOfWords.equals("pronouns")) {
-            if ((Pronouns.pronouns().get(userAnswer)).equalsIgnoreCase(userAnswer)) {
-                return true;
-            } else {
-                return false;
-            }
-        } else if (categoryOfWords.equals("phrases")) {
-            if ((Phrases.phrases().get(userAnswer)).equalsIgnoreCase(userAnswer)) {
-                return true;
-            } else {
-                return false;
-            }
-        } else if (categoryOfWords.equals("allWords")) {
-            if ((AllWords.allWords().get(userAnswer)).equalsIgnoreCase(userAnswer)) {
-                return true;
-            } else {
-                return false;
-            }
-        } else {
-            return false;
-        }
     }
 
     private void showQuizResult() {
@@ -310,7 +166,6 @@ public class MyTelegramBot extends TelegramLongPollingBot {
         message.setChatId(chatId);
         message.setText("Выбери категорию слов:");
 
-        // Создаем список кнопок
         List<InlineKeyboardButton> keyboardButtonsRow1 = new ArrayList<>();
         InlineKeyboardButton inlineKeyboardButton1Row1 = new InlineKeyboardButton();
         inlineKeyboardButton1Row1.setText("Глаголы");
@@ -341,20 +196,16 @@ public class MyTelegramBot extends TelegramLongPollingBot {
         keyboardButtonsRow3.add(inlineKeyboardButton1Row3);
         keyboardButtonsRow3.add(inlineKeyboardButton2Row3);
 
-        // Собираем все строки кнопок в один список
         List<List<InlineKeyboardButton>> rowList = new ArrayList<>();
         rowList.add(keyboardButtonsRow1);
         rowList.add(keyboardButtonsRow2);
         rowList.add(keyboardButtonsRow3);
 
-        // Создаем клавиатуру из кнопок
         InlineKeyboardMarkup keyboardMarkup = new InlineKeyboardMarkup();
         keyboardMarkup.setKeyboard(rowList);
 
-        // Устанавливаем клавиатуру в сообщение
         message.setReplyMarkup(keyboardMarkup);
 
-        // Отправляем сообщение с клавиатурой
         try {
             execute(message);
         } catch (TelegramApiException e) {
@@ -366,36 +217,9 @@ public class MyTelegramBot extends TelegramLongPollingBot {
         message.setChatId(chatId);
         message.setText("Выбери количество слов для повторения:");
 
+        randomNumber = String.valueOf(new Random().nextInt(partOfWord.dictionary().size()));
+        maxOfdictionaryNumber = String.valueOf(partOfWord.dictionary().size());
 
-        switch (data) {
-            case "verbs":
-                randomNumber = String.valueOf(new Random().nextInt(Verbs.verbs().size()));
-                maxOfdictionaryNumber = String.valueOf(Verbs.verbs().size());
-                break;
-            case "nouns":
-                randomNumber = String.valueOf(new Random().nextInt(Nouns.nouns().size()));
-                maxOfdictionaryNumber = String.valueOf(Nouns.nouns().size());
-                break;
-            case "adjectives":
-                randomNumber = String.valueOf(new Random().nextInt(Adjectives.adjectives().size()));
-                maxOfdictionaryNumber = String.valueOf(Adjectives.adjectives().size());
-                break;
-            case "pronouns":
-                randomNumber = String.valueOf(new Random().nextInt(Pronouns.pronouns().size()));
-                maxOfdictionaryNumber = String.valueOf(Pronouns.pronouns().size());
-                break;
-            case "phrases":
-                randomNumber = String.valueOf(new Random().nextInt(Phrases.phrases().size()));
-                maxOfdictionaryNumber = String.valueOf(Phrases.phrases().size());
-                break;
-            case "allWords":
-                randomNumber = String.valueOf(new Random().nextInt(AllWords.allWords().size()));
-                maxOfdictionaryNumber = String.valueOf(AllWords.allWords().size());
-                break;
-            default:
-                break;
-        }
-        // Создаем список кнопок
         List<InlineKeyboardButton> keyboardButtonsRow1 = new ArrayList<>();
         InlineKeyboardButton inlineKeyboardButton1Row1 = new InlineKeyboardButton();
         inlineKeyboardButton1Row1.setText("5 слов");
@@ -426,20 +250,16 @@ public class MyTelegramBot extends TelegramLongPollingBot {
         keyboardButtonsRow3.add(inlineKeyboardButton1Row3);
         keyboardButtonsRow3.add(inlineKeyboardButton2Row3);
 
-        // Собираем все строки кнопок в один список
         List<List<InlineKeyboardButton>> rowList = new ArrayList<>();
         rowList.add(keyboardButtonsRow1);
         rowList.add(keyboardButtonsRow2);
         rowList.add(keyboardButtonsRow3);
 
-        // Создаем клавиатуру из кнопок
         InlineKeyboardMarkup keyboardMarkup = new InlineKeyboardMarkup();
         keyboardMarkup.setKeyboard(rowList);
 
-        // Устанавливаем клавиатуру в сообщение
         message.setReplyMarkup(keyboardMarkup);
 
-        // Отправляем сообщение с клавиатурой
         try {
             execute(message);
         } catch (TelegramApiException e) {
@@ -460,7 +280,7 @@ public class MyTelegramBot extends TelegramLongPollingBot {
     @Override
     public String getBotUsername() {
         StringBuilder content = new StringBuilder();
-        try (BufferedReader reader = new BufferedReader(new FileReader("C:\\Users\\User\\IdeaProjects\\luckyBot\\src\\main\\resources\\tgBotInfo\\tgBotName.txt"))) {
+        try (BufferedReader reader = new BufferedReader(new FileReader("C:\\Users\\User\\IdeaProjects\\tglearnluckybot\\src\\main\\resources\\tgBotInfo\\tgBotName.txt"))) {
             String line;
             while ((line = reader.readLine()) != null) {
                 content.append(line);
@@ -475,7 +295,7 @@ public class MyTelegramBot extends TelegramLongPollingBot {
     @Override
     public String getBotToken() {
         StringBuilder content = new StringBuilder();
-        try (BufferedReader reader = new BufferedReader(new FileReader("C:\\Users\\User\\IdeaProjects\\luckyBot\\src\\main\\resources\\tgBotInfo\\tgBotToken.txt"))) {
+        try (BufferedReader reader = new BufferedReader(new FileReader("C:\\Users\\User\\IdeaProjects\\tglearnluckybot\\src\\main\\resources\\tgBotInfo\\tgBotToken.txt"))) {
             String line;
             while ((line = reader.readLine()) != null) {
                 content.append(line);

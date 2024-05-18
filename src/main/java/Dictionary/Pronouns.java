@@ -3,8 +3,8 @@ package Dictionary;
 import java.util.HashMap;
 import java.util.Map;
 
-public class Pronouns {
-    public static Map<String, String> pronouns() {
+public class Pronouns extends PartOfWord {
+    public Map<String, String> dictionary() {
         Map<String, String> pronounsDictionary = new HashMap<>();
         pronounsDictionary.put("io", "I");
         pronounsDictionary.put("io sono", "I am");
@@ -22,6 +22,11 @@ public class Pronouns {
         pronounsDictionary.put("noi", "we");
         pronounsDictionary.put("noi sono", "we are");
         pronounsDictionary.put("noi abbiamo", "we have");
+        pronounsDictionary.put("suo", "his");
+        pronounsDictionary.put("tuo", "your");
+        pronounsDictionary.put("voi", "you");
+        pronounsDictionary.put("voi avete", "You have");
+        pronounsDictionary.put("voi siete", "you are");
         return pronounsDictionary;
     }
 }
