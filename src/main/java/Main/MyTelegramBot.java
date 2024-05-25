@@ -23,11 +23,9 @@ public class MyTelegramBot extends TelegramLongPollingBot {
     private int quantityUserToRepeat;
     private String correctWord;
     private boolean isWork = false;
-    private String categoryOfWords;
-    private String randomNumber = "";
-    private String maxOfdictionaryNumber = "";
     private int userRightAnswersStats;
     private int userAllQuantityQuestionsStats;
+    private ProblemWords problemWords = new ProblemWords();
 
     @Override
     public void onUpdateReceived(Update update) {
@@ -36,14 +34,17 @@ public class MyTelegramBot extends TelegramLongPollingBot {
             chatId = update.getMessage().getChatId();
 
             if ("/start".equals(messageText)) {
-                sendTextMessage(chatId, "Привет! Давай проверим твои знания итальянского языка. " +
-                        "\nЕсли хочешь выйти, введи /exit" +
-                        "\nЕсли хочешь посмотреть список команд, введи /help");
-                wordsToRepeat = 1;
-                correctAnswers = 0;
+                sendTextMessage(chatId, """
+                        Привет! Давай проверим твои знания итальянского языка.
+                        Тебе нужно будет переводить слова на английский язык!
+                        Если хочешь выйти, введи /exit
+                        Если хочешь посмотреть список команд, введи /help""");
                 askForCategory();
             } else if ("/exit".equalsIgnoreCase(messageText)) {
                 sendTextMessage(chatId, "До свидания! \nЧтобы начать работу, напиши /start");
+                wordsToRepeat = 0;
+                correctAnswers = 0;
+                quantityUserToRepeat = 0;
                 return;
             } else if ("/stats".equalsIgnoreCase(messageText)){
                 sendTextMessage(chatId, "На данный момент ты дал " +
@@ -61,13 +62,20 @@ public class MyTelegramBot extends TelegramLongPollingBot {
                         /wordsleft - Осталось слов
                         /help - Помощь""");
             } else if (isWork) {
-                if (partOfWord.dictionary().get(correctWord).equalsIgnoreCase(messageText)) {
+                if (partOfWord.getDictionary().get(correctWord).equalsIgnoreCase(messageText)) {
                     sendTextMessage(chatId, "Верно!");
                     correctAnswers++;
+                    userRightAnswersStats++;
                     askNextWord();
                 } else {
-                    sendTextMessage(chatId, "Неверно! \nПравильный ответ: " + partOfWord.dictionary().get(correctWord));
-                    askNextWord();
+                    sendTextMessage(chatId, "Неверно! \nПравильный ответ: " +
+                            partOfWord.getDictionary().get(correctWord).toLowerCase());
+                    if (!problemWords.getDictionary().containsKey(correctWord)) {
+                        problemWords.setDictionary(correctWord, partOfWord.getDictionary().get(correctWord));
+                        askNextWord();
+                    } else {
+                        askNextWord();
+                    }
                 }
             }
         }  else if (update.hasCallbackQuery()) {
@@ -87,37 +95,36 @@ public class MyTelegramBot extends TelegramLongPollingBot {
                 sendTextMessage(chatId, "Ты выбрал глаголы!");
                 partOfWord = new Verbs();
                 askForQuantityOfQuestions(data);
-                categoryOfWords = data;
                 break;
             case "nouns":
                 sendTextMessage(chatId, "Ты выбрал существительные!");
                 partOfWord = new Nouns();
                 askForQuantityOfQuestions(data);
-                categoryOfWords = data;
                 break;
             case "adjectives":
                 sendTextMessage(chatId, "Ты выбрал прилагательные и наречия!");
                 partOfWord = new Adjectives();
                 askForQuantityOfQuestions(data);
-                categoryOfWords = data;
                 break;
             case "pronouns":
                 sendTextMessage(chatId, "Ты выбрал местоимения!");
                 partOfWord = new Pronouns();
                 askForQuantityOfQuestions(data);
-                categoryOfWords = data;
                 break;
             case "phrases":
                 sendTextMessage(chatId, "Ты выбрал фразы!");
                 partOfWord = new Phrases();
                 askForQuantityOfQuestions(data);
-                categoryOfWords = data;
                 break;
             case "allWords":
                 sendTextMessage(chatId, "Ты выбрал все слова!");
                 partOfWord = new AllWords();
                 askForQuantityOfQuestions(data);
-                categoryOfWords = data;
+                break;
+            case "problemWords":
+                sendTextMessage(chatId, "Ты выбрал слова, требующие повторения!");
+                partOfWord = problemWords;
+                askForQuantityOfQuestions(data);
                 break;
             default:
                 break;
@@ -125,10 +132,10 @@ public class MyTelegramBot extends TelegramLongPollingBot {
     }
     private void handlerUserChoiceOfQuantityOfQuestions(String data) {
         sendTextMessage(chatId, "Отлично! приступим!");
+        correctAnswers = 0;
         wordsToRepeat = Integer.parseInt(data);
         quantityUserToRepeat = Integer.parseInt(data);
         askNextWord();
-        userAllQuantityQuestionsStats += quantityUserToRepeat;
     }
     private void askNextWord() {
         if (wordsToRepeat == 0) {
@@ -137,11 +144,12 @@ public class MyTelegramBot extends TelegramLongPollingBot {
             return;
         }
 
-        String word = getRandomWord(partOfWord.dictionary());
+        String word = getRandomWord(partOfWord.getDictionary());
         if (!word.isEmpty()) {
-            sendTextMessage(chatId, "Как переводится слово \"" + word + "\"?");
+            sendTextMessage(chatId, "Как переводится слово \"" + word.toLowerCase() + "\"?");
             correctWord = word;
             wordsToRepeat--;
+            userAllQuantityQuestionsStats++;
         } else {
             sendTextMessage(chatId, "Произошла ошибка при выборе слова. Пожалуйста, попробуй еще раз.");
         }
@@ -153,7 +161,6 @@ public class MyTelegramBot extends TelegramLongPollingBot {
     }
 
     private void showQuizResult() {
-        userRightAnswersStats += correctAnswers;
         sendTextMessage(chatId, "Тест завершен. Правильных ответов: " +
                 correctAnswers +
                 " из " +
@@ -196,15 +203,29 @@ public class MyTelegramBot extends TelegramLongPollingBot {
         keyboardButtonsRow3.add(inlineKeyboardButton1Row3);
         keyboardButtonsRow3.add(inlineKeyboardButton2Row3);
 
-        List<List<InlineKeyboardButton>> rowList = new ArrayList<>();
-        rowList.add(keyboardButtonsRow1);
-        rowList.add(keyboardButtonsRow2);
-        rowList.add(keyboardButtonsRow3);
-
-        InlineKeyboardMarkup keyboardMarkup = new InlineKeyboardMarkup();
-        keyboardMarkup.setKeyboard(rowList);
-
-        message.setReplyMarkup(keyboardMarkup);
+        if (!problemWords.getDictionary().isEmpty()) {
+            List<InlineKeyboardButton> keyboardButtonsRow4 = new ArrayList<>();
+            InlineKeyboardButton inlineKeyboardButton1Row4 = new InlineKeyboardButton();
+            inlineKeyboardButton1Row4.setText("Cлова, требующие повторения");
+            inlineKeyboardButton1Row4.setCallbackData("problemWords");
+            keyboardButtonsRow4.add(inlineKeyboardButton1Row4);
+            List<List<InlineKeyboardButton>> rowList = new ArrayList<>();
+            rowList.add(keyboardButtonsRow1);
+            rowList.add(keyboardButtonsRow2);
+            rowList.add(keyboardButtonsRow3);
+            rowList.add(keyboardButtonsRow4);
+            InlineKeyboardMarkup keyboardMarkup = new InlineKeyboardMarkup();
+            keyboardMarkup.setKeyboard(rowList);
+            message.setReplyMarkup(keyboardMarkup);
+        } else {
+            List<List<InlineKeyboardButton>> rowList = new ArrayList<>();
+            rowList.add(keyboardButtonsRow1);
+            rowList.add(keyboardButtonsRow2);
+            rowList.add(keyboardButtonsRow3);
+            InlineKeyboardMarkup keyboardMarkup = new InlineKeyboardMarkup();
+            keyboardMarkup.setKeyboard(rowList);
+            message.setReplyMarkup(keyboardMarkup);
+        }
 
         try {
             execute(message);
@@ -217,48 +238,66 @@ public class MyTelegramBot extends TelegramLongPollingBot {
         message.setChatId(chatId);
         message.setText("Выбери количество слов для повторения:");
 
-        randomNumber = String.valueOf(new Random().nextInt(partOfWord.dictionary().size()));
-        maxOfdictionaryNumber = String.valueOf(partOfWord.dictionary().size());
+        String randomNumber = String.valueOf(new Random().nextInt(partOfWord.getDictionary().size()));
+        String maxOfdictionaryNumber = String.valueOf(partOfWord.getDictionary().size());
+        if (partOfWord instanceof ProblemWords) {
+            List<InlineKeyboardButton> keyboardButtonsRow3 = new ArrayList<>();
+            InlineKeyboardButton inlineKeyboardButton1Row3 = new InlineKeyboardButton();
+            inlineKeyboardButton1Row3.setText("Случайное число");
+            inlineKeyboardButton1Row3.setCallbackData(randomNumber);
+            InlineKeyboardButton inlineKeyboardButton2Row3 = new InlineKeyboardButton();
+            inlineKeyboardButton2Row3.setText("Все слова словаря");
+            inlineKeyboardButton2Row3.setCallbackData(maxOfdictionaryNumber);
+            keyboardButtonsRow3.add(inlineKeyboardButton1Row3);
+            keyboardButtonsRow3.add(inlineKeyboardButton2Row3);
 
-        List<InlineKeyboardButton> keyboardButtonsRow1 = new ArrayList<>();
-        InlineKeyboardButton inlineKeyboardButton1Row1 = new InlineKeyboardButton();
-        inlineKeyboardButton1Row1.setText("5 слов");
-        inlineKeyboardButton1Row1.setCallbackData("5");
-        InlineKeyboardButton inlineKeyboardButton2Row1 = new InlineKeyboardButton();
-        inlineKeyboardButton2Row1.setText("10 слов");
-        inlineKeyboardButton2Row1.setCallbackData("10");
-        keyboardButtonsRow1.add(inlineKeyboardButton1Row1);
-        keyboardButtonsRow1.add(inlineKeyboardButton2Row1);
+            List<List<InlineKeyboardButton>> rowList = new ArrayList<>();
+            rowList.add(keyboardButtonsRow3);
 
-        List<InlineKeyboardButton> keyboardButtonsRow2 = new ArrayList<>();
-        InlineKeyboardButton inlineKeyboardButton1Row2 = new InlineKeyboardButton();
-        inlineKeyboardButton1Row2.setText("15 слов");
-        inlineKeyboardButton1Row2.setCallbackData("15");
-        InlineKeyboardButton inlineKeyboardButton2Row2 = new InlineKeyboardButton();
-        inlineKeyboardButton2Row2.setText("20 слов");
-        inlineKeyboardButton2Row2.setCallbackData("20");
-        keyboardButtonsRow2.add(inlineKeyboardButton1Row2);
-        keyboardButtonsRow2.add(inlineKeyboardButton2Row2);
+            InlineKeyboardMarkup keyboardMarkup = new InlineKeyboardMarkup();
+            keyboardMarkup.setKeyboard(rowList);
 
-        List<InlineKeyboardButton> keyboardButtonsRow3 = new ArrayList<>();
-        InlineKeyboardButton inlineKeyboardButton1Row3 = new InlineKeyboardButton();
-        inlineKeyboardButton1Row3.setText("Случайное число");
-        inlineKeyboardButton1Row3.setCallbackData(randomNumber);
-        InlineKeyboardButton inlineKeyboardButton2Row3 = new InlineKeyboardButton();
-        inlineKeyboardButton2Row3.setText("Все слова словаря");
-        inlineKeyboardButton2Row3.setCallbackData(maxOfdictionaryNumber);
-        keyboardButtonsRow3.add(inlineKeyboardButton1Row3);
-        keyboardButtonsRow3.add(inlineKeyboardButton2Row3);
+            message.setReplyMarkup(keyboardMarkup);
+        } else {
+            List<InlineKeyboardButton> keyboardButtonsRow1 = new ArrayList<>();
+            InlineKeyboardButton inlineKeyboardButton1Row1 = new InlineKeyboardButton();
+            inlineKeyboardButton1Row1.setText("5 слов");
+            inlineKeyboardButton1Row1.setCallbackData("5");
+            InlineKeyboardButton inlineKeyboardButton2Row1 = new InlineKeyboardButton();
+            inlineKeyboardButton2Row1.setText("20 слов");
+            inlineKeyboardButton2Row1.setCallbackData("20");
+            keyboardButtonsRow1.add(inlineKeyboardButton1Row1);
+            keyboardButtonsRow1.add(inlineKeyboardButton2Row1);
 
-        List<List<InlineKeyboardButton>> rowList = new ArrayList<>();
-        rowList.add(keyboardButtonsRow1);
-        rowList.add(keyboardButtonsRow2);
-        rowList.add(keyboardButtonsRow3);
+//            List<InlineKeyboardButton> keyboardButtonsRow2 = new ArrayList<>();
+//            InlineKeyboardButton inlineKeyboardButton1Row2 = new InlineKeyboardButton();
+//            inlineKeyboardButton1Row2.setText("15 слов");
+//            inlineKeyboardButton1Row2.setCallbackData("15");
+//            InlineKeyboardButton inlineKeyboardButton2Row2 = new InlineKeyboardButton();
+//            inlineKeyboardButton2Row2.setText("20 слов");
+//            inlineKeyboardButton2Row2.setCallbackData("20");
+//            keyboardButtonsRow2.add(inlineKeyboardButton1Row2);
+//            keyboardButtonsRow2.add(inlineKeyboardButton2Row2);
 
-        InlineKeyboardMarkup keyboardMarkup = new InlineKeyboardMarkup();
-        keyboardMarkup.setKeyboard(rowList);
+            List<InlineKeyboardButton> keyboardButtonsRow3 = new ArrayList<>();
+            InlineKeyboardButton inlineKeyboardButton1Row3 = new InlineKeyboardButton();
+            inlineKeyboardButton1Row3.setText("Случайное число");
+            inlineKeyboardButton1Row3.setCallbackData(randomNumber);
+            InlineKeyboardButton inlineKeyboardButton2Row3 = new InlineKeyboardButton();
+            inlineKeyboardButton2Row3.setText("Все слова словаря");
+            inlineKeyboardButton2Row3.setCallbackData(maxOfdictionaryNumber);
+            keyboardButtonsRow3.add(inlineKeyboardButton1Row3);
+            keyboardButtonsRow3.add(inlineKeyboardButton2Row3);
 
-        message.setReplyMarkup(keyboardMarkup);
+            List<List<InlineKeyboardButton>> rowList = new ArrayList<>();
+            rowList.add(keyboardButtonsRow1);
+            rowList.add(keyboardButtonsRow3);
+
+            InlineKeyboardMarkup keyboardMarkup = new InlineKeyboardMarkup();
+            keyboardMarkup.setKeyboard(rowList);
+
+            message.setReplyMarkup(keyboardMarkup);
+        }
 
         try {
             execute(message);
@@ -280,7 +319,15 @@ public class MyTelegramBot extends TelegramLongPollingBot {
     @Override
     public String getBotUsername() {
         StringBuilder content = new StringBuilder();
-        try (BufferedReader reader = new BufferedReader(new FileReader("C:\\Users\\User\\IdeaProjects\\tglearnluckybot\\src\\main\\resources\\tgBotInfo\\tgBotName.txt"))) {
+        try (BufferedReader reader = new BufferedReader(new FileReader("C:\\Users" +
+                "\\User" +
+                "\\IdeaProjects" +
+                "\\tglearnluckybot" +
+                "\\src" +
+                "\\main" +
+                "\\resources" +
+                "\\tgBotInfo" +
+                "\\tgBotName.txt"))) {
             String line;
             while ((line = reader.readLine()) != null) {
                 content.append(line);
@@ -295,7 +342,15 @@ public class MyTelegramBot extends TelegramLongPollingBot {
     @Override
     public String getBotToken() {
         StringBuilder content = new StringBuilder();
-        try (BufferedReader reader = new BufferedReader(new FileReader("C:\\Users\\User\\IdeaProjects\\tglearnluckybot\\src\\main\\resources\\tgBotInfo\\tgBotToken.txt"))) {
+        try (BufferedReader reader = new BufferedReader(new FileReader("C:\\Users" +
+                "\\User" +
+                "\\IdeaProjects" +
+                "\\tglearnluckybot" +
+                "\\src" +
+                "\\main" +
+                "\\resources" +
+                "\\tgBotInfo" +
+                "\\tgBotToken.txt"))) {
             String line;
             while ((line = reader.readLine()) != null) {
                 content.append(line);
