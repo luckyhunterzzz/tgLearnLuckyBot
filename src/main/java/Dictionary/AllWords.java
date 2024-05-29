@@ -18,7 +18,6 @@ public class AllWords extends PartOfWord {
         dictionary.putAll(verbs.getDictionary());
     }
     public Map<String, String> getDictionary() {
-
         return dictionary;
     }
 }

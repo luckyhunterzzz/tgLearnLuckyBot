@@ -36,9 +36,12 @@ public class Pronouns extends PartOfWord {
         dictionary.put("al ", "to the");
         dictionary.put("nel", "in the");
         dictionary.put("di ", "from");
+        dictionary.put("Loro", "They");
+        dictionary.put("Loro sono", "They are");
+        dictionary.put("Loro hanno", "They have");
     }
-    public Map<String, String> getDictionary() {
 
+    public Map<String, String> getDictionary() {
         return dictionary;
     }
 }

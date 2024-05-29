@@ -83,9 +83,16 @@ public class Adjectives extends PartOfWord {
         dictionary.put("C'è il sole", "It's sunny");
         dictionary.put("Fa caldo", "It's hot");
         dictionary.put("A volte ", "Sometimes");
+        dictionary.put("Davanti", "In front of");
+        dictionary.put("Intero", "Whole");
+        dictionary.put("Mille", "Very much");
+        dictionary.put("Se", "If");
+        dictionary.put("simple", "Simple");
+        dictionary.put("attenta ", "Careful");
+        dictionary.put("Preoccupato", "Worried");
     }
-    public Map<String, String> getDictionary() {
 
+    public Map<String, String> getDictionary() {
         return dictionary;
     }
 }

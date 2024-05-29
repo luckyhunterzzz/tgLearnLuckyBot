@@ -5,6 +5,7 @@ import java.util.Map;
 
 public class Nouns extends PartOfWord {
     private Map<String, String> dictionary = new HashMap<>();
+
     public Nouns() {
         dictionary.put("acqua", "water");
         dictionary.put("amico", "friend");
@@ -136,9 +137,24 @@ public class Nouns extends PartOfWord {
         dictionary.put("Formaggio", "Cheese");
         dictionary.put("Pezzo", "Piece");
         dictionary.put("genitore ", "Parents");
+        dictionary.put("Contanti", "Cash");
+        dictionary.put("Porta", "Door");
+        dictionary.put("Parola", "Word");
+        dictionary.put("Visto", "Visa");
+        dictionary.put("Soldi", "Money");
+        dictionary.put("Patente", "Driver's license ");
+        dictionary.put("Cellulare", "Cell phone");
+        dictionary.put("Pallacanestro", "Basketball");
+        dictionary.put("Palla", "Ball");
+        dictionary.put("Ballo", "Dance");
+        dictionary.put("adesso", "Now");
+        dictionary.put("Cinema", "Movie theater");
+        dictionary.put("Uccello", "Bird");
+        dictionary.put("Natura", "Nature");
+        dictionary.put("Fortuna", "Luck");
     }
-    public Map<String, String> getDictionary() {
 
+    public Map<String, String> getDictionary() {
         return dictionary;
     }
 }

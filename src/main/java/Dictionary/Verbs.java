@@ -126,9 +126,26 @@ public class Verbs extends PartOfWord {
         dictionary.put("vogliamo", "we want");
         dictionary.put("vogliono", "they want");
         dictionary.put("Vorrebbero", "they would like");
+        dictionary.put("dobbiamo", "we have to");
+        dictionary.put("Parlano", "they speak");
+        dictionary.put("Potete", "you Can");
+        dictionary.put("Possono", "they Can");
+        dictionary.put("Posso", "i Can");
+        dictionary.put("Puoi", "you Can");
+        dictionary.put("Puo", "he Can");
+        dictionary.put("Possiamo", "we Can");
+        dictionary.put("Volete", "you want");
+        dictionary.put("preparare", "To Prepare");
+        dictionary.put("aprire", "to open");
+        dictionary.put("dire", "To say");
+        dictionary.put("Guidare", "To drive");
+        dictionary.put("Disegnare ", "To draw");
+        dictionary.put("pranzare", "To have lunch");
+        dictionary.put("divertiti ", "To have fun");
+        dictionary.put("Preoccupare ", "To worry");
     }
-    public Map<String, String> getDictionary() {
 
+    public Map<String, String> getDictionary() {
         return dictionary;
     }
 }

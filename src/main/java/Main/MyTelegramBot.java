@@ -1,14 +1,12 @@
 package Main;
 
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
-import org.telegram.telegrambots.meta.TelegramBotsApi;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
-import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
 import Dictionary.*;
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -25,7 +23,8 @@ public class MyTelegramBot extends TelegramLongPollingBot {
     private boolean isWork = false;
     private int userRightAnswersStats;
     private int userAllQuantityQuestionsStats;
-    private ProblemWords problemWords = new ProblemWords();
+    private final ProblemWords problemWords = new ProblemWords();
+    private Map<String, String> dictionaryForMethod = new HashMap<>();
 
     @Override
     public void onUpdateReceived(Update update) {
@@ -45,7 +44,7 @@ public class MyTelegramBot extends TelegramLongPollingBot {
                 wordsToRepeat = 0;
                 correctAnswers = 0;
                 quantityUserToRepeat = 0;
-                return;
+                isWork = false;
             } else if ("/stats".equalsIgnoreCase(messageText)){
                 sendTextMessage(chatId, "На данный момент ты дал " +
                         userRightAnswersStats +
@@ -94,41 +93,42 @@ public class MyTelegramBot extends TelegramLongPollingBot {
             case "verbs":
                 sendTextMessage(chatId, "Ты выбрал глаголы!");
                 partOfWord = new Verbs();
-                askForQuantityOfQuestions(data);
+                askForQuantityOfQuestions();
                 break;
             case "nouns":
                 sendTextMessage(chatId, "Ты выбрал существительные!");
                 partOfWord = new Nouns();
-                askForQuantityOfQuestions(data);
+                askForQuantityOfQuestions();
                 break;
             case "adjectives":
                 sendTextMessage(chatId, "Ты выбрал прилагательные и наречия!");
                 partOfWord = new Adjectives();
-                askForQuantityOfQuestions(data);
+                askForQuantityOfQuestions();
                 break;
             case "pronouns":
                 sendTextMessage(chatId, "Ты выбрал местоимения!");
                 partOfWord = new Pronouns();
-                askForQuantityOfQuestions(data);
+                askForQuantityOfQuestions();
                 break;
             case "phrases":
                 sendTextMessage(chatId, "Ты выбрал фразы!");
                 partOfWord = new Phrases();
-                askForQuantityOfQuestions(data);
+                askForQuantityOfQuestions();
                 break;
             case "allWords":
                 sendTextMessage(chatId, "Ты выбрал все слова!");
                 partOfWord = new AllWords();
-                askForQuantityOfQuestions(data);
+                askForQuantityOfQuestions();
                 break;
             case "problemWords":
                 sendTextMessage(chatId, "Ты выбрал слова, требующие повторения!");
                 partOfWord = problemWords;
-                askForQuantityOfQuestions(data);
+                askForQuantityOfQuestions();
                 break;
             default:
                 break;
         }
+        dictionaryForMethod.putAll(partOfWord.getDictionary());
     }
     private void handlerUserChoiceOfQuantityOfQuestions(String data) {
         sendTextMessage(chatId, "Отлично! приступим!");
@@ -144,7 +144,8 @@ public class MyTelegramBot extends TelegramLongPollingBot {
             return;
         }
 
-        String word = getRandomWord(partOfWord.getDictionary());
+//        String word = getRandomWord(partOfWord.getDictionary());
+        String word = getRandomWordWithoutRepeat();
         if (!word.isEmpty()) {
             sendTextMessage(chatId, "Как переводится слово \"" + word.toLowerCase() + "\"?");
             correctWord = word;
@@ -158,6 +159,13 @@ public class MyTelegramBot extends TelegramLongPollingBot {
     private String getRandomWord(Map<String, String> dictionary) {
         String[] keys = dictionary.keySet().toArray(new String[0]);
         return keys[new Random().nextInt(keys.length)];
+    }
+
+    private String getRandomWordWithoutRepeat() {
+        String[] keys = dictionaryForMethod.keySet().toArray(new String[0]);
+        String randomWord = keys[new Random().nextInt(keys.length)];
+        dictionaryForMethod.remove(randomWord);
+        return randomWord;
     }
 
     private void showQuizResult() {
@@ -233,7 +241,7 @@ public class MyTelegramBot extends TelegramLongPollingBot {
             e.printStackTrace();
         }
     }
-    private void askForQuantityOfQuestions(String data) {
+    private void askForQuantityOfQuestions() {
         SendMessage message = new SendMessage();
         message.setChatId(chatId);
         message.setText("Выбери количество слов для повторения:");
