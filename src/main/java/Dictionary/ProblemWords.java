@@ -13,4 +13,8 @@ public class ProblemWords extends PartOfWord {
     public void setDictionary(String key, String value) {
         dictionary.put(key, value);
     }
+
+    public void cleanDictionary() {
+        dictionary = new HashMap<>();
+    }
 }

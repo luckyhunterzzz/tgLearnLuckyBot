@@ -29,7 +29,7 @@ public class Phrases extends PartOfWord {
         dictionary.put("Non lo so", "I don't know");
         dictionary.put("ma certò", "Of course");
         dictionary.put("Come stai", "How are you");
-        dictionary.put("Sto bene", "I'm fine ");
+        dictionary.put("Sto bene", "I am fine ");
         dictionary.put("in contanti", "In cash");
         dictionary.put("gli piace", "he likes");
         dictionary.put("le piace", "She likes");
